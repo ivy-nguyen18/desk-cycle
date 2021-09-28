@@ -13,6 +13,7 @@ int hallVal;
 
 void setup() {
   circumference = M_PI * 2 * radius;
+  hallCounter = maxHallCounter;
 
   // set up of ENCODER
   pinMode(2, INPUT_PULLUP); // internal pullup input pin 2 
@@ -79,7 +80,7 @@ ISR(TIMER1_COMPA_vect){ //interrupt at freq of 1kHZ to measure reed switch
 
 void loop(){
   //HE-SENSOR code
-  Serial.println(digitalRead(HALL));
+  //Serial.println(digitalRead(HALL));
 
   //if magnet is read, increment revolutions
   if(digitalRead(HALL) == 1){
@@ -91,6 +92,9 @@ void loop(){
     Serial.println (counter);
     temp = counter;
   }
+  
+  Serial.println(velocity);
+   
   delay(1000); //delay for 1 second 
 }
 
