@@ -1,0 +1,10 @@
+#include <Servo.h> 
+
+Servo myservo;
+
+void setup() 
+{ 
+  myservo.attach(9,544,2500);// adjust min and max values for angles
+} 
+
+void loop() {} 
