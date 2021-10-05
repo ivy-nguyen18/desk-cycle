@@ -87,13 +87,20 @@ void loop(){
     revolutions ++;
   }
 
-  // Send the value of counter
-  if( counter != temp ){
-    Serial.println (counter);
-    temp = counter;
-  }
+  // Send the value of counter -> would only iterate if there is movement
+  //if( counter != temp ){
+//      Serial.print("Counter: ");
+//      Serial.print(counter);
+//      Serial.print("\n");
+  //  temp = counter;
+  //}
   
-  Serial.println(velocity);
+  Serial.print(counter);
+  Serial.print("\\");
+  
+ 
+  Serial.print(velocity);
+  Serial.print("\n");
    
   delay(1000); //delay for 1 second 
 }
