@@ -3,7 +3,8 @@
 Servo myservo;
 
 
-volatile long temp, counter = 0; //This variable will increase or decrease depending on the rotation of encoder
+
+volatile long temp, counter,pos = 0; //This variable will increase or decrease depending on the rotation of encoder
     
 void setup() {
   Serial.begin (9600);
@@ -26,18 +27,22 @@ void setup() {
     if( counter != temp ){
       Serial.println (counter);
       temp = counter;
+      pos = counter/33;
+      myservo.write(pos);
+      
     }
 }
+
+
    
   void ai0() {
   // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
   // Check pin 3 to determine the direction
   if(digitalRead(3)==LOW) {
     counter++;
-     myservo.write(counter); 
     }else{
       counter--;
-      myservo.write(counter); 
+       
     }
 }
    
@@ -46,9 +51,7 @@ void setup() {
   // Check with pin 2 to determine the direction
   if(digitalRead(2)==LOW) {
     counter--;
-    myservo.write(counter); 
     }else{
       counter++;
-      myservo.write(counter); 
     }
 }
