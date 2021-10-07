@@ -1,3 +1,77 @@
 //going to adapt it so that if there is a change in rps the servo will adjust its angle so that it attacks the velocity
 //use gain equation, (force = gain*(desired_velocity - current_velocity))(what kind of gain value gives us the quickest results?)
 //force is dependet on displacement so instead we will use (displacement_angle = gain*(desired_velocity - current_velocity))
+#include <Servo.h> 
+
+Servo myservo;
+
+unsigned long start_time, delta_time, current_time;
+
+volatile long temp, counter, RPS, rev_count;  //this variable will increase or decrease depending on the rotation of encoder
+    
+void setup() {
+  Serial.begin (9600);
+  pinMode(2, INPUT_PULLUP); // internal pullup input pin 2 
+  
+  pinMode(3, INPUT_PULLUP); // internalเป็น pullup input pin 3
+  //Setting up interrupt
+  //A rising pulse from encodenren activated ai0(). AttachInterrupt 0 is DigitalPin nr 2 on moust Arduino.
+  attachInterrupt(0, ai0, RISING);
+   
+  //B rising pulse from encodenren activated ai1(). AttachInterrupt 1 is DigitalPin nr 3 on moust Arduino.
+  attachInterrupt(1, ai1, RISING);
+  
+  myservo.attach(9,544,2500);// adjust min and max values for angles
+
+}
+   
+  void loop() {
+  // Send the value of counter
+    if( counter != temp ){
+      Serial.print(RPS);
+      Serial.print(" | ");
+      Serial.println (counter);
+      temp = counter;
+    }
+}
+
+   
+  void ai0() {
+  // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
+  // Check pin 3 to determine the direction
+  if(digitalRead(3)==LOW) {
+    counter++;
+     myservo.write(counter); 
+    }else{
+      counter--;
+      myservo.write(counter); 
+    }
+}
+   
+  void ai1() {
+  // ai0 is activated if DigitalPin nr 3 is going from LOW to HIGH
+  // Check with pin 2 to determine the direction
+  if(digitalRead(2)==LOW) {
+    counter--;
+    myservo.write(counter); 
+    }else{
+      counter++;
+      myservo.write(counter); 
+    }
+}
+
+    void Velrev(){
+    //Velrev counts 1200 steps for one revoltuion and tracks time it took for each revolution in RPS (revs per second)
+    if (counter == 1){
+        start_time = millis();
+    }
+
+    if ( counter % 1200 == 0 ){
+    // if the remainder every 1200 counts is 0
+        rev_count ++;
+        current_time = millis();
+        delta_time = current_time - start_time;
+        RPS= (delta_time / 1000);
+        start_time = millis();
+    }
+}
