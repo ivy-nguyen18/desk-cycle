@@ -1,0 +1,3 @@
+//going to adapt it so that if there is a change in rps the servo will adjust its angle so that it attacks the velocity
+//use gain equation, (force = gain*(desired_velocity - current_velocity))(what kind of gain value gives us the quickest results?)
+//force is dependet on displacement so instead we will use (displacement_angle = gain*(desired_velocity - current_velocity))
