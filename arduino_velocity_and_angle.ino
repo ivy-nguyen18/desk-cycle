@@ -1,3 +1,4 @@
+#include <Servo.h>
 // set up the variables
 #define LED A3
 #define HALL A4
@@ -8,8 +9,9 @@ long timer = 0; // time ebtween one full rotation (in ms)
 float velocity = 0.00; // miles per hours
 int maxHallCounter = 100; //min time (in ms) of one rotation (for debouncing)
 int hallCounter;
-volatile long temp, counter = 0;
+volatile long temp, pos, counter = 0;
 int hallVal;
+Servo myServo;
 
 void setup() {
   circumference = M_PI * 2 * radius;
@@ -24,6 +26,8 @@ void setup() {
    
   //B rising pulse from encodenren activated ai1(). AttachInterrupt 1 is DigitalPin nr 3 on moust Arduino.
   attachInterrupt(1, ai1, RISING);
+  
+  myServo.attach(9,544,2500);
 
   //set up of HE-SENSOR
   pinMode(LED, OUTPUT);
@@ -53,7 +57,8 @@ void setup() {
 
 }
 
-ISR(TIMER1_COMPA_vect){ //interrupt at freq of 1kHZ to measure reed switch
+ISR(TIMER2_COMPA_vect){ //interrupt at freq of 1kHZ to measure reed switch
+//switched from TIMER1_COMPA_VECTOR to TIMER2 because overlap in timers with the Servo
   hallVal = digitalRead(HALL); //get val of HALL
   if (hallVal){ ///if switch is closed
     if( hallCounter == 0){//min time between pulses has passed
@@ -86,23 +91,20 @@ void loop(){
   if(digitalRead(HALL) == 1){
     revolutions ++;
   }
-
-  // Send the value of counter -> would only iterate if there is movement
-  //if( counter != temp ){
-//      Serial.print("Counter: ");
-//      Serial.print(counter);
-//      Serial.print("\n");
-  //  temp = counter;
-  //}
   
+  //Prints out: counter\velocity
   Serial.print(counter);
   Serial.print("\\");
-  
- 
   Serial.print(velocity);
   Serial.print("\n");
+  
+  if(counter != temp){ //send value of counter to servo to change accordingly 
+    temp = counter;
+    pos = counter/33;
+    myServo.write(pos);
+  }
    
-  delay(1000); //delay for 1 second 
+  delay(500); //delay for .5 second 
 }
 
 void ai0() {
