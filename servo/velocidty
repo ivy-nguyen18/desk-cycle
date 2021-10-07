@@ -2,9 +2,9 @@
 
 Servo myservo;
 
-unsigned long Time, cTime, dTime;
+unsigned long start_time, delta_time, current_time;
 
-volatile long temp, counter, velocity = 0; //This variable will increase or decrease depending on the rotation of encoder
+volatile long temp, counter, RPS, rev_count;  //this variable will increase or decrease depending on the rotation of encoder
     
 void setup() {
   Serial.begin (9600);
@@ -18,31 +18,20 @@ void setup() {
   //B rising pulse from encodenren activated ai1(). AttachInterrupt 1 is DigitalPin nr 3 on moust Arduino.
   attachInterrupt(1, ai1, RISING);
   
-    myservo.attach(9,544,2500);// adjust min and max values for angles
+  myservo.attach(9,544,2500);// adjust min and max values for angles
 
 }
    
   void loop() {
   // Send the value of counter
     if( counter != temp ){
+      Serial.print(RPS);
+      Serial.print(" | ");
       Serial.println (counter);
       temp = counter;
     }
 }
 
-  void velocity(){
-    if (counter = 1){
-       Time = mili();
-    }
-   for (counter % 30){ //every 10 degrees track time differnce
-    cTime = mili();
-    dTime = cTime-Time;
-    velocity = counter/dTime;
-    Time = mili();
-    Serial.println(velocity);
-    
-   }
-  }
    
   void ai0() {
   // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
@@ -65,5 +54,21 @@ void setup() {
     }else{
       counter++;
       myservo.write(counter); 
+    }
+}
+
+    void Velrev(){
+    //Velrev counts 1200 steps for one revoltuion and tracks time it took for each revolution in RPS (revs per second)
+    if (counter == 1){
+        start_time = millis();
+    }
+
+    if ( counter % 1200 == 0 ){
+    // if the remainder every 1200 counts is 0
+        rev_count ++;
+        current_time = millis();
+        delta_time = start_time - current_time;
+        RPS= (delta_time / 1000);
+        start_time = millis();
     }
 }
