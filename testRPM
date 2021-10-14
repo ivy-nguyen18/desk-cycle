@@ -1,3 +1,4 @@
+
 #include <Servo.h>
 // set up the variables
 #define LED A3
@@ -37,26 +38,6 @@ void setup() {
   pinMode(LED, OUTPUT);
   pinMode(HALL, INPUT);
 
-  //TIMER SETUP - timer interrupt allows precise timed measurements of the switch
-  cli(); //stop interrupts
-
-  //set timer1 intterupt at 1kHz
-  TCCR1A = 0; // set entire TCCR1A register to 0
-  TCCR1B = 0; // set entire TCCR1B register to 0
-  TCNT1 = 0; // set entire TCNT1 register to 0
-
-  //set timer count for 1khz increments
-  OCR1A = 1999; //(1/1000) / ((1/16*10^6)) * 8) - 1
-  //turn on CTC 
-  TCCR1B |= (1 << WGM12);
-  //set CS11 bit for 8 prescaler
-  TCCR1B |= (1 << CS11);
-  //enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
-
-  sei(); //allow interrupts
-  //END TIMER SETUP
-
   Serial.begin (9600);
 
 }
@@ -66,7 +47,7 @@ void loop(){
   //HE-SENSOR code
   static bool firstTime = true; // The first datapoint is not used because previousMagValue has not been assigned a meaningful value
   static long thisMagValue = 0;
-  static int rpm = 0;
+  static float rpm = 0.00;
   static long mph = 0;
   static long kph = 0;
   static float magnetCount = 0.00; // represents how many times a magnet has been recorded
@@ -77,9 +58,8 @@ void loop(){
   if(!firstTime) // this code will be run on every loop except the first
     {
         //delay(500);
-        int change = abs(thisMagValue-previousMagValue); // A large change indicates exposure to the rim magnet
-
-        if (change > 1000)
+       
+        if ((thisMagValue == 1 ) && (previousMagValue != thisMagValue))
         {
             ++magnetCount;
         }
@@ -91,18 +71,9 @@ void loop(){
         }
         if(abs((((float)(millis()-timeOld)/1000)/60))>0.01)
         {
-            rpm = (magnetCount/2) / (((float)(millis()-timeOld)/1000)/60);
+            rpm = (magnetCount) / (((float)(millis()-timeOld)/1000)/60);
         }
         delay(15);
-
-        if(USE_MPH)
-        {
-            mph = ((WHEEL_DIAMETER * PI)* rpm) / 1056; // 1056 is the conversion factor between inches/minute and miles/hour
-        }
-        else // use kph
-        {
-            kph = ((WHEEL_DIAMETER * PI)* rpm) / 1666.67; // 1666.67 is the conversion factor between cm/minute and km/hour
-        }
 
         Serial.print(rpm); // Prints all values to screen, with mph/kph in large font
     }
