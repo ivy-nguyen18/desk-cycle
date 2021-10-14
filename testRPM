@@ -73,7 +73,6 @@ void loop(){
         {
             rpm = (magnetCount) / (((float)(millis()-timeOld)/1000)/60);
         }
-        delay(15);
 
         Serial.print(rpm); // Prints all values to screen, with mph/kph in large font
     }
