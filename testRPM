@@ -1,4 +1,3 @@
-
 #include <Servo.h>
 // set up the variables
 #define LED A3
@@ -6,22 +5,11 @@
 const bool USE_MPH = true; // If set to false, kilometers per hour will be used instead of mph and centimeters will be used instead of inches
 const int WHEEL_DIAMETER = 9; // please enter the wheel diameter in inches (or centimeters if USE_MPH is set to false)
 const int RPM_SAMPLE_PERIOD = 10; // RPM is calculated based on the last 10 seconds of data
-int revolutions = 0;
-const int radius = 9; //wheel radius in inches
-float circumference; 
-long timer = 0; // time ebtween one full rotation (in ms)
-float velocity = 0.00; // miles per hours
-int maxHallCounter = 100; //min time (in ms) of one rotation (for debouncing)
-int hallCounter;
-volatile long temp, pos, counter = 0;
-int hallVal;
+volatile long revolutions, temp, pos, counter = 0;
 Servo myServo;
 
 
 void setup() {
-  circumference = M_PI * 2 * radius;
-  hallCounter = maxHallCounter;
-
   // set up of ENCODER
   pinMode(2, INPUT_PULLUP); // internal pullup input pin 2 
   pinMode(3, INPUT_PULLUP); // internalเป็น pullup input pin 3
@@ -50,20 +38,19 @@ void loop(){
   static float rpm = 0.00;
   static long mph = 0;
   static long kph = 0;
-  static float magnetCount = 0.00; // represents how many times a magnet has been recorded
+  static int magnetCount = 0; // represents how many times a magnet has been recorded
   static unsigned long timeOld = 0; 
   long previousMagValue = thisMagValue;
   thisMagValue = digitalRead(HALL);
   
-  if(!firstTime) // this code will be run on every loop except the first
+  // this code will be run on every loop except the first
+  if(!firstTime) 
     {
-        //delay(500);
-       
         if ((thisMagValue == 1 ) && (previousMagValue != thisMagValue))
         {
             ++magnetCount;
         }
-        // Every RPM_SAMPLE_PERIOD seconds we reset the magnetData array to 0 
+        // Every RPM_SAMPLE_PERIOD seconds we reset the magnetCount back to 0
         if(floor((millis()-timeOld)/1000)==RPM_SAMPLE_PERIOD)
         {
             timeOld = millis();
@@ -74,7 +61,7 @@ void loop(){
             rpm = (magnetCount) / (((float)(millis()-timeOld)/1000)/60);
         }
 
-        Serial.print(rpm); // Prints all values to screen, with mph/kph in large font
+        Serial.print(rpm);
     }
 
     firstTime = false;
@@ -84,17 +71,17 @@ void loop(){
     revolutions ++;
   }
   
-  //Prints out: counter\velocity
-  //Serial.print(counter);
-  Serial.print("\\");
-  Serial.print(velocity);
-  Serial.print("\n");
-  
-  if(counter != temp){ //send value of counter to servo to change accordingly 
+  //send value of counter to servo to change accordingly 
+  if(counter != temp){ 
     temp = counter;
     pos = counter/33;
     myServo.write(pos);
   }
+  
+  //Prints out: rpm\counter
+  Serial.print("\\");
+  Serial.print(counter);
+  Serial.print("\n");
    
   delay(500); //delay for .5 second 
 }
