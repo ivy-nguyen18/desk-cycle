@@ -2,9 +2,11 @@
 
 Servo myservo;
 
+const int RPM_reset = 5;
+
 unsigned long start_time, delta_time, current_time;
 
-volatile long temp, counter, RPS, rev_count;  //this variable will increase or decrease depending on the rotation of encoder
+volatile long temp, counter, RPS, rev_count, vcounter;  //this variable will increase or decrease depending on the rotation of encoder
     
 void setup() {
   Serial.begin (9600);
@@ -29,7 +31,19 @@ void setup() {
       Serial.print(" | ");
       Serial.println (counter);
       temp = counter;
+      myservo.write(counter);
+      }
+    if(counter == 1){
+        start_time = millis();
     }
+    if(floor((millis()-start_time)/1000)== RPM_reset){
+        start_time = 0;
+        vcounter = 0;
+    }
+    if(abs((((float)(millis()-start_time)/1000)/60))>0.01)
+        {
+         rpm = (vcounter) / (((float)(millis()-start_time)/1000)/60);
+        }
 }
 
    
@@ -38,10 +52,12 @@ void setup() {
   // Check pin 3 to determine the direction
   if(digitalRead(3)==LOW) {
     counter++;
-     myservo.write(counter); 
+    vcounter++;
+  
     }else{
       counter--;
-      myservo.write(counter); 
+      vcounter--;
+
     }
 }
    
@@ -50,25 +66,13 @@ void setup() {
   // Check with pin 2 to determine the direction
   if(digitalRead(2)==LOW) {
     counter--;
-    myservo.write(counter); 
+    vcounter--;
     }else{
       counter++;
-      myservo.write(counter); 
+      vcounter++;
+      
     }
 }
 
-    void Velrev(){
-    //Velrev counts 1200 steps for one revoltuion and tracks time it took for each revolution in RPS (revs per second)
-    if (counter == 1){
-        start_time = millis();
-    }
-
-    if ( counter % 1200 == 0 ){
-    // if the remainder every 1200 counts is 0
-        rev_count ++;
-        current_time = millis();
-        delta_time = start_time - current_time;
-        RPS= (delta_time / 1000);
-        start_time = millis();
-    }
+    
 }
