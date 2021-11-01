@@ -109,11 +109,10 @@ void loop(){
         }
 
         Serial.print(rpm);
+        choosePerturbation();
     }
 
   firstTime = false;
-  
-  choosePerturbation();
   
   //Prints out: rpm\counter
   Serial.print("\\");
