@@ -5,8 +5,13 @@
 const bool USE_MPH = true; // If set to false, kilometers per hour will be used instead of mph and centimeters will be used instead of inches
 const int WHEEL_DIAMETER = 9; // please enter the wheel diameter in inches (or centimeters if USE_MPH is set to false)
 const int RPM_SAMPLE_PERIOD = 10; // RPM is calculated based on the last 10 seconds of data
-volatile long revolutions, temp, pos, counter = 0;
+volatile long temp, pos, counter = 0;
 Servo myServo;
+float velocity = 0.0;
+float maxVelocity = 33.0;// velocity to perturb by
+int angle = 60; //
+int time = 30; //time in seconds to perturb by
+const char choice = 'Z'; //A = angle, V = velocity, T = time
 
 
 void setup() {
@@ -30,6 +35,47 @@ void setup() {
 
 }
 
+//should be a gradual perturbation
+void velocityPerturb(){
+  if(velocity >= maxVelocity){
+    myServo.write(counter/33);
+  }
+  else{
+    myServo.write(0);
+  }
+}
+
+void anglePerturb(){
+  if((counter/33) % angle == 0 && counter != 0){
+    myServo.write(6000);
+    delay(2000);
+  }
+  myServo.write(0);
+}
+
+void timePerturb(){
+  if( (millis()/1000 % time) == 0 && millis() != 0){
+    myServo.write(60000);
+    delay(2000);
+  }
+  myServo.write(0);  
+}  
+
+void choosePerturbation(){
+  switch(choice){
+    case 'V':
+      velocityPerturb();
+      break;
+    case 'A':
+       anglePerturb();
+       break;
+    case 'T':
+       timePerturb();
+       break;
+    default:
+        return;
+  }
+}
 
 void loop(){
   //HE-SENSOR code
@@ -59,24 +105,15 @@ void loop(){
         if(abs((((float)(millis()-timeOld)/1000)/60))>0.01)
         {
             rpm = (magnetCount) / (((float)(millis()-timeOld)/1000)/60);
+            velocity = rpm;
         }
 
         Serial.print(rpm);
     }
 
-    firstTime = false;
-
-  //if magnet is read, increment revolutions
-  if(digitalRead(HALL) == 1){
-    revolutions ++;
-  }
+  firstTime = false;
   
-  //send value of counter to servo to change accordingly 
-  if(counter != temp){ 
-    temp = counter;
-    pos = counter/33;
-    myServo.write(pos);
-  }
+  choosePerturbation();
   
   //Prints out: rpm\counter
   Serial.print("\\");
