@@ -1,0 +1,119 @@
+#include <Servo.h> 
+
+//define variabels
+
+Servo myservo;
+float vel;
+volatile long temp, counter, RPS, rev_count;  //this variable will increase or decrease depending on the rotation of encoder
+int rev_counter;
+float tempf, Rtime, Stime;
+
+
+void setup() {
+  Serial.begin (9600);
+  pinMode(2, INPUT_PULLUP); // internal pullup input pin 2 
+  
+  pinMode(3, INPUT_PULLUP); // internalเป็น pullup input pin 3
+  //Setting up interrupt
+  //A rising pulse from encodenren activated ai0(). AttachInterrupt 0 is DigitalPin nr 2 on moust Arduino.
+  attachInterrupt(0, ai0, RISING);
+   
+  //B rising pulse from encodenren activated ai1(). AttachInterrupt 1 is DigitalPin nr 3 on moust Arduino.
+  attachInterrupt(1, ai1, RISING);
+  
+  myservo.attach(9,544,2500);// adjust min and max values for angles
+  
+  int rev_counter = 0;
+  
+
+}
+   
+  void loop() {
+    //reset variable with each loop
+    
+    
+  // Send the value of counter
+    if( counter != temp ){      ///only prints when there is a chain in value, so it is not instantaneous
+      Serial.print(RPS);
+      Serial.print(" | ");
+      Serial.println (counter);
+      temp = counter;
+      tempf = temp/422; // count value in full step revolution of 422 steps per rev
+
+      
+          if (temp>=1){
+      //start time Stime
+      if (temp == 1){
+        Stime = millis();
+         }
+      //rev coutner
+       if (%tempf == 0){
+        rev_counter ++;
+        Rtime = Stime - millis();
+        //calculate velocty per revolution
+        vel = Rtime;        //Rtime = time per each revolution
+        Stime = millis();   // restart Stime to get the difference for each revolution
+        }
+                     }
+     myservo.write(counter);
+                       }
+      
+      }
+   
+}
+  void rev() {
+    //count revolutions and track time between each revolution
+    if (temp>=1){
+      //start time Stime
+      if (temp == 1){
+        Stime = millis();
+      }
+      //rev coutner
+      if (%tempf == 0){
+        rev_counter ++;
+        Rtime = Stime - millis();
+        //calculate velocty per revolution
+        vel = Rtime;        //Rtime = time per each revolution
+        Stime = millis();   // restart Stime to get the difference for each revolution
+    }
+    
+   }
+  }
+
+
+  
+
+
+  
+}
+
+  
+  void ai0() {
+  // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
+  // Check pin 3 to determine the direction
+  if(digitalRead(3)==LOW) {
+    counter++;
+
+  
+    }else{
+      counter--;
+
+
+    }
+}
+   
+  void ai1() {
+  // ai0 is activated if DigitalPin nr 3 is going from LOW to HIGH
+  // Check with pin 2 to determine the direction
+  if(digitalRead(2)==LOW) {
+    counter--;
+
+    }else{
+      counter++;
+
+      
+    }
+}
+
+    
+}
