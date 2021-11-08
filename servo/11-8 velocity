@@ -4,7 +4,7 @@
 
 Servo myservo;
 float vel;
-volatile long temp, counter, RPS, rev_count;  //this variable will increase or decrease depending on the rotation of encoder
+volatile long temp, counter, rev_count;  //this variable will increase or decrease depending on the rotation of encoder
 int rev_counter;
 float tempf, Rtime, Stime;
 
@@ -34,10 +34,8 @@ void setup() {
     
   // Send the value of counter
     if( counter != temp ){      ///only prints when there is a chain in value, so it is not instantaneous
-      Serial.print(RPS);
-      Serial.print(" | ");
-      Serial.println (counter);
-      temp = counter;
+    
+
       tempf = temp/422; // count value in full step revolution of 422 steps per rev
 
       
@@ -56,29 +54,17 @@ void setup() {
         }
                      }
      myservo.write(counter);
+      Serial.print(" | ");
+      Serial.print(counter);
+      Serial.print(" | ");
+      Serial.println (vel);
+      temp = counter;
                        }
       
       }
    
 }
-  void rev() {
-    //count revolutions and track time between each revolution
-    if (temp>=1){
-      //start time Stime
-      if (temp == 1){
-        Stime = millis();
-      }
-      //rev coutner
-      if (%tempf == 0){
-        rev_counter ++;
-        Rtime = Stime - millis();
-        //calculate velocty per revolution
-        vel = Rtime;        //Rtime = time per each revolution
-        Stime = millis();   // restart Stime to get the difference for each revolution
-    }
-    
-   }
-  }
+  
 
 
   
@@ -116,4 +102,3 @@ void setup() {
 }
 
     
-}
