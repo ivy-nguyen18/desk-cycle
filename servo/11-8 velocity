@@ -34,22 +34,18 @@ void setup() {
     
   // Send the value of counter
     if( counter != temp ){      ///only prints when there is a chain in value, so it is not instantaneous
-    
-
       tempf = temp/422; // count value in full step revolution of 422 steps per rev
-
-      
-          if (temp>=1){
+      if (temp>=1){
       //start time Stime
       if (temp == 1){
         Stime = millis();
          }
       //rev coutner
-       if (%tempf == 0){
+       if (temp % 422 == 0){
         rev_counter ++;
-        Rtime = Stime - millis();
+        Rtime = millis() - Stime;
         //calculate velocty per revolution
-        vel = Rtime;        //Rtime = time per each revolution
+        vel = Rtime/1000;        //Rtime = time per each revolution
         Stime = millis();   // restart Stime to get the difference for each revolution
         }
                      }
@@ -61,8 +57,6 @@ void setup() {
       temp = counter;
                        }
       }
-}
-}
 
   void ai0() {
   // ai0 is activated if DigitalPin nr 2 is going from LOW to HIGH
@@ -86,7 +80,3 @@ void setup() {
       counter++;
     }
 }
-    
-}
-© 2021 GitHub, Inc.
-Terms
