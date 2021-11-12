@@ -8,10 +8,10 @@ const int RPM_SAMPLE_PERIOD = 10; // RPM is calculated based on the last 10 seco
 volatile long temp, pos, counter = 0;
 Servo myServo;
 float velocity = 0.0;
-float maxVelocity = 33.0;// velocity to perturb by
+float maxVelocity = 30.0;// velocity to perturb by
 int angle = 60; //
 int time = 30; //time in seconds to perturb by
-const char choice = 'Z'; //A = angle, V = velocity, T = time
+const char choice = 'V'; //A = angle, V = velocity, T = time
 
 
 void setup() {
@@ -32,13 +32,14 @@ void setup() {
   pinMode(HALL, INPUT);
 
   Serial.begin (9600);
+  myServo.write(0);
 
 }
 
 //should be a gradual perturbation
 void velocityPerturb(){
   if(velocity >= maxVelocity){
-    myServo.write(counter/33);
+    myServo.write(velocity*180);
   }
   else{
     myServo.write(0);
@@ -77,9 +78,8 @@ void choosePerturbation(){
   }
 }
 
-void loop(){
-  //HE-SENSOR code
-  static bool firstTime = true; // The first datapoint is not used because previousMagValue has not been assigned a meaningful value
+void calcVelocity(){
+    //HE-SENSOR code
   static long thisMagValue = 0;
   static float rpm = 0.00;
   static long mph = 0;
@@ -90,8 +90,6 @@ void loop(){
   thisMagValue = digitalRead(HALL);
   
   // this code will be run on every loop except the first
-  if(!firstTime) 
-    {
         if ((thisMagValue == 1 ) && (previousMagValue != thisMagValue))
         {
             ++magnetCount;
@@ -109,17 +107,26 @@ void loop(){
         }
 
         Serial.print(rpm);
-        choosePerturbation();
-    }
+}
+  
 
-  firstTime = false;
+void loop(){
+  static bool firstTime = true;
+  if((counter/33) >= 360){
+    counter =0 ;
+  }
+   if(!firstTime) 
+   {
+     calcVelocity();
+     choosePerturbation();
+   }
+   firstTime = false;
   
   //Prints out: rpm\counter
   Serial.print("\\");
-  Serial.print(counter);
+  Serial.print(counter/33);
   Serial.print("\n");
-   
-  delay(500); //delay for .5 second 
+  delay(500);
 }
 
 void ai0() {
