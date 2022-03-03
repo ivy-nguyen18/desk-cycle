@@ -1,0 +1,24 @@
+import random
+from itertools import count
+import pandas as pd
+import matplotlib.pyplot
+from matplotlib.animation import FuncAnimation
+
+xvals = []
+yvals = []
+
+index = count()
+
+def animate(i):
+  data = pd.read_csv('filename.csv')
+  time = data['time'] #get data from the time column
+  step = data['rotation'] #get data from the rotation column
+  
+  plt.cla() #clears the plot
+  plt.scatter(time, sleep)
+  plt.tight_layout()
+
+ani = FuncAnimation(plt.gcf(), animate, interval = 1000) #animate function is going to run every 1 second
+ 
+ plt.tight_layout()
+ plt.show()
